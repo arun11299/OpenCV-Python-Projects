@@ -1,1 +1,1 @@
-From the tutorials in http://www.pyimagesearch.com/
+Some apps are from http://www.pyimagesearch.com/ 
