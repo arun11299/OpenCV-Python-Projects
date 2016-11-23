@@ -6,20 +6,19 @@ import glob
 https://onionesquereality.wordpress.com/2009/02/11/face-recognition-using-eigenfaces-and-distance-classifiers-a-tutorial/
 """
 
-def get_all_images(num_persons, imgs_per_person):
+def get_target_images(dir_name, imgs_per_person):
   image_map = dict()
-  for person_dir in range(num_persons):
-    person_dir = person_dir + 1
-    person_dir = "./db/s{}".format(person_dir)
+  person_dir = "./db/{}".format(dir_name)
 
-    for image in range(imgs_per_person):
-      image = image + 1
-      image_name = person_dir + "/{}.pgm".format(image)
-      img = cv2.imread(image_name)
-      gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-      cv2.imshow(person_dir, gray_image)
-      print gray_image.shape
-      image_map[image_name] = gray_image
+  for image in range(imgs_per_person):
+    image = image + 1
+    image_name = person_dir + "/test-{}.jpg".format(image)
+    img = cv2.imread(image_name)
+    gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    resized_image = cv2.resize(gray_image, (240, 220)) 
+    cv2.imshow(person_dir, resized_image)
+    print resized_image.shape
+    image_map[image_name] = resized_image
 
   return image_map
 
@@ -47,24 +46,23 @@ def get_normalized_face_vectors(image_map, mean):
   for (name, img) in image_map.items():
     f = np.array(img.flatten()).reshape(img.shape[0]*img.shape[1], 1)
     norm_img_vector_map[name] = np.uint8(f - mean)
-    cv2.imshow("subtracted-{}".format(name), norm_img_vector_map[name].reshape(112, 92))
+    cv2.imshow("subtracted-{}".format(name), norm_img_vector_map[name].reshape(img.shape[0], img.shape[1]))
 
   return norm_img_vector_map
 
 
 
 if __name__ == "__main__":
-  num_diff_persons = 4
-  images_per_person = 2
-  total_images = num_diff_persons * images_per_person
+  images_per_person = 3
+  total_images = images_per_person
 
-  image_map = get_all_images(num_diff_persons, images_per_person)
+  image_map = get_target_images("arun", images_per_person)
   print "Got all images"
 
   avg_face_vector = get_mean_face(image_map)
   print "Mean:"
   print avg_face_vector.shape
-  cv2.imshow("mean-face", avg_face_vector.reshape(112, 92))
+  cv2.imshow("mean-face", avg_face_vector.reshape(240, 220))
 
   norm_img_vector_map = get_normalized_face_vectors(image_map, avg_face_vector)
   print "normalization done"
@@ -85,9 +83,9 @@ if __name__ == "__main__":
   print eigen_face
 
   for i in range(eigen_face.shape[1]):
-    first = np.array(eigen_face[:, i]).reshape(112, 92)
+    first = np.array(eigen_face[:, i]).reshape(240, 220)
     cv2.imshow("image-{}".format(i), first)
 
   cv2.waitKey(0)
-  #cv2.destroyAllWindows()
+  cv2.destroyAllWindows()
 
